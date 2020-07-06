@@ -7,4 +7,6 @@ constexpr int DIM = 2;
 constexpr int N = 256;
 constexpr int ARRAYSIZE(){ return N*N;}
 
+#define LOC(X, Y) (X+Y*N)
+
 #endif
