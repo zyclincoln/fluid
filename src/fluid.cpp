@@ -27,24 +27,24 @@ void Fluid::simulate(){
     den_step();
 }
 
-void Fluid::vel_steup(){
+void Fluid::vel_step(){
     add_source(u1, u0, dt); add_source(v1, v0, dt);
     std::swap(u0, u1);
     std::swap(v0, v1);
     diffuse(1, u1, u0, visc, dt); 
     diffuse(2, v1, v0, visc, dt);
-    project(u, v, u0, v0);
+    project(u1, v1, u0, v0);
     std::swap(u0, u1);
     std::swap(v0, v1);
     advect(1, u1, u0, u0, v0, dt); 
     advect(2, v1, v0, u0, v0, dt);
-    project(u, v, u0, v0);
+    project(u1, v1, u0, v0);
 }
 
 void Fluid::den_step(){
     add_source(d1, d0, dt);
     std::swap(d0, d1); diffuse(0, d1, d0, df, dt);
-    std::swap(d0, d1); advert(0, d1, d0, u, v, dt);
+    std::swap(d0, d1); advect(0, d1, d0, u1, v1, dt);
 }
 
 void Fluid::add_source(vector<float>& x, vector<float>& s, float dt){
@@ -54,9 +54,16 @@ void Fluid::add_source(vector<float>& x, vector<float>& s, float dt){
 }
 
 void Fluid::set_boundary(int boundary, vector<float>& s){
-    for(int i = 1; i < N-2; ++i){
-        // s[LOC(0,i)] = boundary == 1? 
+    for(int i = 1; i < N-1; ++i){
+        s[LOC(0,  i)] = boundary == 1? -s[LOC(1, i)] : s[LOC(1, i)];
+        s[LOC(N-1,i)] = boundary == 1? -s[LOC(N-1, i)] : s[LOC(N-1, i)];
+        s[LOC(i,  0)] = boundary == 2? -s[LOC(i, 1)] : s[LOC(i, 1)];
+        s[LOC(i,N-1)] = boundary == 2? -s[LOC(i, N-1)] : s[LOC(i, N-1)];
     }
+    s[LOC(0, 0)] = 0.5 * (s[LOC(1, 0)]+s[LOC(0, 1)]);
+    s[LOC(0, N-1)] = 0.5 * (s[LOC(1, N-1)] + s[LOC(0, N-2)]);
+    s[LOC(N-1, 0)] = 0.5 * (s[LOC(N-2, 0)] + s[LOC(N-1, 1)]);
+    s[LOC(N-1, N-1)] = 0.5 * (s[LOC(N-1, N-2)] + s[LOC(N-2, N-1)]);
 }
 
 void Fluid::diffuse(int boundary, vector<float>& s1, vector<float>& s0, float df, float dt){
@@ -64,14 +71,14 @@ void Fluid::diffuse(int boundary, vector<float>& s1, vector<float>& s0, float df
     for(int i = 0; i < 20; ++i){
         for(int x = 1; x < N-1; ++x){
             for(int y = 1; y < N-1; ++y){
-                s1[LOC(x, y)] = (s0[LOC(x, y)]+alpha*(s1[LOC(x-1, y)] + s1[LOC(x+1, y)] + s1[LOC(x, y-1)] + s1[LOC(x, y+1)]))/(1+4*a);
+                s1[LOC(x, y)] = (s0[LOC(x, y)]+alpha*(s1[LOC(x-1, y)] + s1[LOC(x+1, y)] + s1[LOC(x, y-1)] + s1[LOC(x, y+1)]))/(1+4*alpha);
             }
         }
         set_boundary(boundary, s1);
     }
 }
 
-void Fluid::advert(int boundary, std::vector<float>& s1, std::vector<float>& s0, std::vector<float>& u, std::vector<float>& v, float dt){
+void Fluid::advect(int boundary, std::vector<float>& s1, std::vector<float>& s0, std::vector<float>& u, std::vector<float>& v, float dt){
     int i0, i1, j0, j1;
     float rx1, rx0, ry0, ry1;
     float newx, newy;
