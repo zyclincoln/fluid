@@ -37,7 +37,7 @@ int main(int argc, char** argv){
     Fluid fluid;
 
     while(!glfwWindowShouldClose(window)){
-        fluid.draw();
+        fluid.simulate();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
