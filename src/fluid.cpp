@@ -18,14 +18,14 @@ Fluid::Fluid(){
 
     for(int x = 48; x < 80; ++x){
         for(int y = 48; y < 80; ++y){
-            d0[LOC(x, y)] = 50.f;
+            d0[LOC(x, y)] = 15.f;
         }
     }
 
-    for(int x = 48; x < 80; ++x){
-        for(int y = 48; y < 80; ++y){
-            u0[LOC(x, y)] = 50;
-            v0[LOC(x, y)] = 50;
+    for(int x = 40; x < 80; ++x){
+        for(int y = 40; y < 80; ++y){
+            u0[LOC(x, y)] = 100;
+            v0[LOC(x, y)] = 100;
         }
     }
 }
@@ -36,30 +36,20 @@ void Fluid::simulate(){
     // density update
     den_step();
     draw(d1);
-    std::cout << u1[LOC(48, 48)] << std::endl;
-    // exit(-1);
 }
 
 void Fluid::vel_step(){
     add_source(u1, u0, dt); add_source(v1, v0, dt);
-    // std::cout << "1" << std::endl;
-    // std::cout << u1[LOC(1, 1)] << std::endl;
     std::swap(u0, u1);
     std::swap(v0, v1);
     diffuse(1, u1, u0, visc, dt); 
     diffuse(2, v1, v0, visc, dt);
-    // // // std::cout << u1[LOC(1, 1)] << std::endl;
-    // // // std::cout << "2" << std::endl;
     project(u1, v1, u0, v0);
-    // // // std::cout << u1[LOC(1, 1)] << std::endl;
-    // // // std::cout << "3" << std::endl;
     std::swap(u0, u1);
     std::swap(v0, v1);
     advect(1, u1, u0, u0, v0, dt); 
     advect(2, v1, v0, u0, v0, dt);
-    // // // std::cout << "4" << std::endl;
     project(u1, v1, u0, v0);
-    // std::cout << "5" << std::endl;
     u0 = vector<float>(ARRAYSIZE(), 0.f);
     v0 = vector<float>(ARRAYSIZE(), 0.f);
 }
