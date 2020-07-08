@@ -24,4 +24,20 @@ void draw(std::vector<float>& field){
     }
 }
 
+void draw(std::vector<float>& u, std::vector<float>& v){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glLoadIdentity();
+    glOrtho(0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, -1.0, 1.0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // for(int y = 0; y < N; ++y){
+    //     for(int x = 0; x < N; ++x){
+    //         glColor4d
+    //     }
+    // }
+}
+
 #endif

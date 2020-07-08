@@ -21,10 +21,12 @@ private:
     void project(std::vector<float>& u, std::vector<float>& v, std::vector<float>& p, std::vector<float>& div);
     void advect(int boundary, std::vector<float>& s1, std::vector<float>& s0, std::vector<float>& u, std::vector<float>& v, float dt);
     void set_boundary(int boundary, std::vector<float>& s);
+    void dissipate(std::vector<float>& t, float dissipate);
 private:
-    float dt = 0.001;
-    float visc = 0.01;
-    float df = 0.0001;
+    float dt = 0.05;
+    float visc = 0.001;
+    float df = 0.001;
+    float dissi = 0.001;
     // old velocity field x
     std::vector<float> u0;
     // new velocity field x
