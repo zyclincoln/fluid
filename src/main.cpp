@@ -36,10 +36,14 @@ int main(int argc, char** argv){
 
     Fluid fluid;
 
+    int count = 0;
     while(!glfwWindowShouldClose(window)){
         fluid.simulate();
         glfwSwapBuffers(window);
         glfwPollEvents();
+        std::cout << count << std::endl;
+        count++;
+        exit(-1);
     }
     glfwTerminate();
     return 0;

@@ -16,33 +16,33 @@ public:
 private:
     void den_step();
     void vel_step();
-    void add_source(std::vector<float>& x, std::vector<float>& s, float dt);
-    void diffuse(int boundary, std::vector<float>& s1, std::vector<float>& s0, float df, float dt);
-    void project(std::vector<float>& u, std::vector<float>& v, std::vector<float>& p, std::vector<float>& div);
-    void advect(int boundary, std::vector<float>& s1, std::vector<float>& s0, std::vector<float>& u, std::vector<float>& v, float dt);
-    void set_boundary(int boundary, std::vector<float>& s);
-    void dissipate(std::vector<float>& t, float dissipate);
+    void add_source(std::vector<double>& x, std::vector<double>& s, double dt);
+    void diffuse(int boundary, std::vector<double>& s1, std::vector<double>& s0, double df, double dt);
+    void project(std::vector<double>& u, std::vector<double>& v, std::vector<double>& p, std::vector<double>& div);
+    void advect(int boundary, std::vector<double>& s1, std::vector<double>& s0, std::vector<double>& u, std::vector<double>& v, double dt);
+    void set_boundary(int boundary, std::vector<double>& s);
+    void dissipate(std::vector<double>& t, double dissipate);
 private:
-    float dt = 0.05;
-    float visc = 0.001;
-    float df = 0.001;
-    float dissi = 0.001;
+    double dt = 0.05;
+    double visc = 0.0003;
+    double df = 0.000001;
+    double dissi = 0.000;
     // old velocity field x
-    std::vector<float> u0;
+    std::vector<double> u0;
     // new velocity field x
-    std::vector<float> u1;
+    std::vector<double> u1;
     // old velocity field y
-    std::vector<float> v0;
+    std::vector<double> v0;
     // new velocity field y
-    std::vector<float> v1;
+    std::vector<double> v1;
     // force field x
-    std::vector<float> fx;
+    std::vector<double> fx;
     // force field y
-    std::vector<float> fy;
+    std::vector<double> fy;
     // old density field
-    std::vector<float> d0;
+    std::vector<double> d0;
     // new density field
-    std::vector<float> d1;
+    std::vector<double> d1;
 };
 
 #endif
