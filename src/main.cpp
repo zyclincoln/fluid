@@ -43,7 +43,7 @@ int main(int argc, char** argv){
         glfwPollEvents();
         std::cout << count << std::endl;
         count++;
-        exit(-1);
+        // exit(-1);
     }
     glfwTerminate();
     return 0;

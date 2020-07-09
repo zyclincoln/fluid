@@ -26,7 +26,7 @@ Fluid::Fluid(){
     for(int x = 61; x < 69; ++x){
         for(int y = N-11; y < N; ++y){
             u0[LOC(x, y)] = 0;
-            v0[LOC(x, y)] = -200;
+            v0[LOC(x, y)] = -1000;
         }
     }
 }
@@ -49,20 +49,17 @@ void Fluid::vel_step(){
     std::swap(v0, v1);
     diffuse(1, u1, u0, visc, dt); 
     diffuse(2, v1, v0, visc, dt);
-    std::cout << "u1 ";
+    // horizontal_symmetrify(v1);
+    std::cout << "after diffuse u1 ";
     check_horizontal_symmetric(u1);
-    std::cout << "v1 ";
+    std::cout << "after diffuse v1 ";
     check_horizontal_symmetric(v1);
-    project(u1, v1, u0, v0);
-    std::cout << "u1 ";
-    check_horizontal_symmetric(u1);
-    std::cout << "v1 ";
-    check_horizontal_symmetric(v1);
-    // std::swap(u0, u1);
-    // std::swap(v0, v1);
-    // advect(1, u1, u0, u0, v0, dt); 
-    // advect(2, v1, v0, u0, v0, dt);
     // project(u1, v1, u0, v0);
+    std::swap(u0, u1);
+    std::swap(v0, v1);
+    advect(1, u1, u0, u0, v0, dt); 
+    advect(2, v1, v0, u0, v0, dt);
+    project(u1, v1, u0, v0);
     u0 = vector<double>(ARRAYSIZE(), 0.f);
     v0 = vector<double>(ARRAYSIZE(), 0.f);
 }
@@ -71,7 +68,7 @@ void Fluid::den_step(){
     add_source(d1, d0, dt);
     std::swap(d0, d1); diffuse(0, d1, d0, df, dt);
     std::swap(d0, d1); advect(0, d1, d0, u1, v1, dt);
-    // dissipate(d1, dissi);
+    dissipate(d1, dissi);
     d0 = vector<double>(ARRAYSIZE(), 0.f);
 }
 
@@ -230,13 +227,16 @@ void Fluid::advect(int boundary, std::vector<double>& s1, std::vector<double>& s
 
 void Fluid::project(vector<double>& u, vector<double>& v, vector<double>& p, vector<double>& div){
     double h = 1.f/(N-2);
+    p = vector<double>(ARRAYSIZE(), 0.f);
+    div = vector<double>(ARRAYSIZE(), 0.f);
     for(int x = 1; x < N-1; ++x){
         for(int y = 1; y < N-1; ++y){
             div[LOC(x, y)] = -0.5*h*(u[LOC(x+1, y)]-u[LOC(x-1, y)] + v[LOC(x, y+1)]-v[LOC(x, y-1)]);
-            p[LOC(x, y)] = 0;
+            // p[LOC(x, y)] = 0;
         }
     }
     set_boundary(3, div); set_boundary(3, p);
+    std::cout << "h: " << h << std::endl;
     std::cout << "div: ";
     check_horizontal_symmetric(div);
 
@@ -249,6 +249,7 @@ void Fluid::project(vector<double>& u, vector<double>& v, vector<double>& p, vec
         set_boundary(3, p);
     }
     std::cout << "p: ";
+    // horizontal_symmetrify(p);
     check_horizontal_symmetric(p);
     std::cout << "u: ";
     check_horizontal_symmetric(u);
@@ -261,5 +262,11 @@ void Fluid::project(vector<double>& u, vector<double>& v, vector<double>& p, vec
             v[LOC(x, y)] -= 0.5 * (p[LOC(x, y+1)] - p[LOC(x, y-1)])/h;
         }
     }
+    // std::cout << p[LOC(66, 3)] << std::endl;
+    // draw(p);
+    std::cout << "after project u: ";
+    check_horizontal_symmetric(u);
+    std::cout << "after project v: ";
+    check_horizontal_symmetric(v);
     set_boundary(1, u); set_boundary(2, v);
 }

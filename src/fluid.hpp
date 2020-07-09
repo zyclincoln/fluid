@@ -24,9 +24,9 @@ private:
     void dissipate(std::vector<double>& t, double dissipate);
 private:
     double dt = 0.05;
-    double visc = 0.0003;
-    double df = 0.000001;
-    double dissi = 0.000;
+    double visc = 0.0001;
+    double df = 0.0001;
+    double dissi = 0.005;
     // old velocity field x
     std::vector<double> u0;
     // new velocity field x
