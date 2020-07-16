@@ -1,8 +1,8 @@
 #ifndef _DEFINE_HPP_
 #define _DEFINE_HPP_
 
-constexpr int WINDOW_WIDTH=1024;
-constexpr int WINDOW_HEIGHT=1024;
+constexpr int WINDOW_WIDTH=800;
+constexpr int WINDOW_HEIGHT=800;
 constexpr int DIM = 2;
 constexpr int N = 130;
 constexpr int ARRAYSIZE(){ return N*N;}

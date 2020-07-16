@@ -16,6 +16,7 @@ public:
 private:
     void den_step();
     void vel_step();
+    void vorticity_confinement(std::vector<double>& u, std::vector<double>& v, double epsilon);
     void add_source(std::vector<double>& x, std::vector<double>& s, double dt);
     void diffuse(int boundary, std::vector<double>& s1, std::vector<double>& s0, double df, double dt);
     void project(std::vector<double>& u, std::vector<double>& v, std::vector<double>& p, std::vector<double>& div);
@@ -25,8 +26,10 @@ private:
 private:
     double dt = 0.05;
     double visc = 0.0001;
-    double df = 0.0001;
+    double df = 0.00001;
     double dissi = 0.005;
+    // vorticity
+    double epsilon = 0.3;
     // old velocity field x
     std::vector<double> u0;
     // new velocity field x
