@@ -13,6 +13,7 @@ class Fluid{
 public:
     Fluid();
     void simulate();
+    void add_source();
 private:
     void den_step();
     void vel_step();
@@ -29,7 +30,7 @@ private:
     double df = 0.00001;
     double dissi = 0.005;
     // vorticity
-    double epsilon = 0.3;
+    double epsilon = 0.5;
     // old velocity field x
     std::vector<double> u0;
     // new velocity field x
