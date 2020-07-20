@@ -17,7 +17,7 @@ void draw(std::vector<double>& field){
 
     for(int y = 1; y < N-1; ++y){
         for(int x = 1; x < N-1; ++x){
-            glColor4d(0.f, 1.f, 1.f, field[LOC(x, y)]);
+            glColor4d(0.f, field[LOC(x, y)], field[LOC(x, y)], 1.f);
             glRectf((x-1)*WINDOW_WIDTH*1.f/(N-2), (y-1)*WINDOW_HEIGHT*1.f/(N-2), 
                     x*WINDOW_WIDTH*1.f/(N-2), y*WINDOW_HEIGHT*1.f/(N-2));
         }

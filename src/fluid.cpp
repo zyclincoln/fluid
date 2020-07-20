@@ -28,26 +28,28 @@ void Fluid::simulate(){
 }
 
 void Fluid::vel_step(){
-    // vorticity_confinement(u1, v1, epsilon);
     add_source(u1, fx, dt); 
     add_source(v1, fy, dt);
-    // std::swap(u0, u1);
-    // std::swap(v0, v1);
-    // diffuse(1, u1, u0, visc, dt);
-    // diffuse(2, v1, v0, visc, dt);
+    vorticity_confinement(u1, v1, epsilon);
+    std::swap(u0, u1);
+    std::swap(v0, v1);
+    diffuse(1, u1, u0, visc, dt);
+    diffuse(2, v1, v0, visc, dt);
     std::swap(u0, u1);
     std::swap(v0, v1);
     advect(1, u1, u0, u0, v0, dt); 
     advect(2, v1, v0, u0, v0, dt);
     project(u1, v1, u0, v0);
+    u0 = vector<double>(ARRAYSIZE(), 0);
+    v0 = vector<double>(ARRAYSIZE(), 0);
 }
 
 void Fluid::add_source(){
     for(int x = 60; x < 70; ++x){
         for(int y = 100; y < 110; ++y){
             fx[LOC(x, y)] = 0.f;
-            fy[LOC(x, y)] = -0.8f;
-            d0[LOC(x, y)] = 0.5f;
+            fy[LOC(x, y)] = -0.2f;
+            d0[LOC(x, y)] = 0.8f;
         }
     }
 }
@@ -67,16 +69,16 @@ void Fluid::vorticity_confinement(std::vector<double>& u, std::vector<double>& v
     vector<double> w(u.size(), 0);
     for(int i = 1; i < N-1; ++i){
         for(int j = 1; j < N-1; ++j){
-            w[LOC(i, j)] = fabs(((v[LOC(i+1, j)] - v[LOC(i-1, j)]) 
-            - (u[LOC(i+1, j)]-u[LOC(i-1, j)])) / (2*delta)); 
+            w[LOC(i, j)] = ((v[LOC(i+1, j)] - v[LOC(i-1, j)]) 
+            - (u[LOC(i+1, j)]-u[LOC(i-1, j)])) / (2*delta); 
         }
     }
 
     vector<double> eta_x(u.size(), 0), eta_y(u.size(), 0);
     for(int i = 1; i < N-1; ++i){
         for(int j = 1; j < N-1; ++j){
-            eta_x[LOC(i, j)] = (w[LOC(i+1, j)] - w[LOC(i-1, j)]) * 0.5 / delta;
-            eta_y[LOC(i, j)] = (w[LOC(i, j+1)] - w[LOC(i, j-1)]) * 0.5 / delta;
+            eta_x[LOC(i, j)] = (fabs(w[LOC(i+1, j)]) - fabs(w[LOC(i-1, j)])) * 0.5 / delta;
+            eta_y[LOC(i, j)] = (fabs(w[LOC(i, j+1)]) - fabs(w[LOC(i, j-1)])) * 0.5 / delta;
             double norm = sqrt(eta_x[LOC(i, j)]*eta_x[LOC(i, j)] + eta_y[LOC(i, j)]*eta_y[LOC(i, j)]);
             if(norm < 1e-12){
                 eta_x[LOC(i, j)] = 0;
@@ -92,8 +94,8 @@ void Fluid::vorticity_confinement(std::vector<double>& u, std::vector<double>& v
     // add force to u
     for(int i = 1; i < N-1; ++i){
         for(int j = 1; j < N-1; ++j){
-            u0[LOC(i, j)] += epsilon * delta * eta_y[LOC(i, j)] * w[LOC(i, j)];
-            v0[LOC(i, j)] += -epsilon * delta * eta_x[LOC(i, j)] * w[LOC(i, j)];
+            u1[LOC(i, j)] += epsilon * delta * eta_y[LOC(i, j)] * w[LOC(i, j)];
+            v1[LOC(i, j)] += -epsilon * delta * eta_x[LOC(i, j)] * w[LOC(i, j)];
         }
     }
 }
@@ -189,7 +191,7 @@ void Fluid::set_boundary(int boundary, vector<double>& s){
 
 void Fluid::diffuse(int boundary, vector<double>& s1, vector<double>& s0, double df, double dt){
     double alpha = dt * df * N * N;
-    for(int i = 0; i < 20; ++i){
+    for(int i = 0; i < 30; ++i){
         for(int x = 1; x < N-1; ++x){
             for(int y = 1; y < N-1; ++y){
                 s1[LOC(x, y)] = (s0[LOC(x, y)]+alpha*(s1[LOC(x-1, y)] + s1[LOC(x+1, y)] + s1[LOC(x, y-1)] + s1[LOC(x, y+1)]))/(1+4*alpha);     
@@ -232,7 +234,7 @@ void Fluid::project(vector<double>& u, vector<double>& v, vector<double>& p, vec
     }
     set_boundary(3, div); set_boundary(3, p);
 
-    for(int i = 0; i < 20; ++i){
+    for(int i = 0; i < 30; ++i){
         for(int x = 1; x < N-1; ++x){
             for(int y = 1; y < N-1; ++y){
                 p[LOC(x, y)] = (div[LOC(x, y)]+p[LOC(x-1, y)] + p[LOC(x+1, y)] + p[LOC(x, y-1)] + p[LOC(x, y+1)])/4;
