@@ -1,8 +1,14 @@
 \documentclass[a4paper, 9pt]{extarticle}
 \usepackage{amsmath}
 \usepackage{cleveref}
+
+\newcommand{\Subitem}[1]{
+    {\setlength\itemindent{15pt}\item[-] #1}
+}
+
 \title{Memo Of Fluid Simulation}
-\date{}
+\date{\today}
+\author{Yicun Zheng}
 \begin{document}
 \maketitle
 
@@ -11,9 +17,104 @@
 \begin{equation}
     \begin{aligned}
     \nabla \cdot u &= 0 \\
-    \frac{\partial{u}}{\partial{t}} &= -(u\cdot \nabla)u - \frac{1}{\rho}\nabla p + \nu \nabla^2u + f\\
+    \frac{\partial{\mathbf{u}}}{\partial{t}} &= -(\mathbf{u}\cdot \nabla)\mathbf{u} - \frac{1}{\rho}\nabla p + \nu \nabla^2\mathbf{u} + f\\
     \end{aligned}
+    \label{eq:conservation}
 \end{equation}
 
+Derived from Hodge Decomposition, the conservation of velocity can be reformed as:
+\begin{equation}
+    \frac{\partial{\mathbf{u}}}{\partial{t}} = \mathbf{P}(-(\mathbf{u}\cdot \nabla)\mathbf{u} + \nu \nabla^2\mathbf{u} + f),
+\end{equation}
+where $P$ is a projection to make sure the result field is divergence free.
+
+The rule to update density field is:
+\begin{equation}
+    \frac{\partial d}{\partial t} = -\mathbf{u}\cdot\nabla d + \kappa \nabla^2 - \alpha d + S,
+\end{equation}
+where $\kappa$ is the diffusion ratio, $\alpha$ is the dissipation ratio, and $S$ is outside source.
+
+\section{Detail of Calculation}
+\subsection{Overall Pipeline}
+\begin{itemize}
+    \item update velocity field
+        \Subitem{add outside force}
+        \Subitem{calculate advection}
+        \Subitem{calculate diffusion}
+        \Subitem{calculate vorticity confinement}
+        \Subitem{make project to remove divergence part}
+    \item update density field
+        \Subitem{add outside source}
+        \Subitem{calculate advection}
+        \Subitem{calculate diffusion}
+        \Subitem{calculate dissipation}
+\end{itemize}
+
+\subsection{Calculation of Velocity}
+This section describes every sub-step of the calculation of velocity in detail. 
+\paragraph{the calculation of advection $(\mathbf{u}\cdot\nabla)\mathbf{u}$}
+The advection term can be understood as the material moved by flow. The material can be velocity field or density field. The advection term is $\mathbf{u}\cdot\nabla$, which means if the flow field flows in, the material field increases, on the contrary, it decreases.
+
+Here, I use the method of characteristics to solve the advection term:
+\begin{equation}
+    \frac{\partial a(x, t)}{\partial t} = -\mathbf(u)\cdot \nabla a(x, t),
+\end{equation}
+which can be intuitively understood as driving every partial back to one time step before by current advection term. The traced partial at one time step before is bilinear interpolated by its location.
+    
+\paragraph{the calculation of diffusion}
+
+The diffusion term is calculated by implicit method by a simple Gauss-Seidel Iteration.
+
+\paragraph{the calculaion of vorticity confinement}
+
+According to the formula of vorticity confinement:
+\begin{equation}
+    \begin{aligned}
+    \mathbf{\omega} &= \nabla \times \mathbf{u} \\
+    N &= \frac{\nabla \left| \eta \right|}{\left| \nabla \left| \eta \right| \right|} \\
+    f_{conf} &= \epsilon (N\times \omega),
+    \end{aligned}
+\end{equation}
+where $epsilon$ is the vorticity ratio and $f_{conf}$ is the addition force for vorticity confinement.
+
+\paragraph{the calculation of projection}
+According to Hodge Theory, a field can be decomposed as the sum of a divergence free field and 
+a gradient of a scalar field. At this step, we denote the sum of above step as $w$. The project operator can be achieved by subtract the gradient of a scalar field part from $w$. Denote the scalar field part as $s$, there is:
+\begin{equation}
+    \nabla w = \nabla^2 s.
+\end{equation}
+Then, use Gauss-Seidel iteration to solve $\nabla s$. Finally, subtract $\nabla s$ from $w$.
+
+\subsection{Calculation of Density}
+The advection term and diffusion term is the same to velocity part. For the dissipation, I divide the density by $(1+\alpha \Delta t)$, where $\alpha$ is the dissipation ratio.
+
+
+\appendix
+
+\section{Operator}
+\paragraph{Gradient Operator $\nabla$}
+\begin{equation}
+    \nabla \mathbf{u} = \begin{pmatrix} \frac{\partial \mathbf{u}}{\partial x} & \frac{\partial \mathbf{u}}{\partial y} & \frac{\partial \mathbf{u}}{\partial z} \end{pmatrix}
+\end{equation}
+Please note that the character with bolded style represents vector.
+
+\paragraph{Divergence Operator $\nabla \cdot$}
+\begin{equation}
+    \nabla \cdot \mathbf{u} = \frac{\partial \mathbf{u_x}}{\partial x} + \frac{\partial \mathbf{u_y}}{\partial y} + \frac{\partial \mathbf{u_z}}{\partial z} 
+\end{equation}
+
+\paragraph{Curl Operator $\nabla \times$}
+\begin{equation}
+    \nabla \times \mathbf{u} = \begin{pmatrix}
+        \frac{\partial \mathbf{u_z}}{\partial y} - \frac{\partial \mathbf{u_y}}{\partial z} &
+        \frac{\partial \mathbf{u_x}}{\partial z} - \frac{\partial \mathbf{u_z}}{\partial x} &
+        \frac{\partial \mathbf{u_y}}{\partial x} - \frac{\partial \mathbf{u_x}}{\partial y}
+    \end{pmatrix}
+\end{equation}
+
+\paragraph{Laplacian Operator}
+\begin{equation}
+    \Delta \mathbf{u} = \frac{\partial^2 \mathbf{u}}{\partial x^2} + \frac{\partial^2 \mathbf{u}}{\partial y^2} + \frac{\partial^2 \mathbf{u}}{\partial z^2}
+\end{equation}
 
 \end{document}
