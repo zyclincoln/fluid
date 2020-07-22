@@ -70,7 +70,7 @@ void Fluid::vorticity_confinement(std::vector<double>& u, std::vector<double>& v
     for(int i = 1; i < N-1; ++i){
         for(int j = 1; j < N-1; ++j){
             w[LOC(i, j)] = ((v[LOC(i+1, j)] - v[LOC(i-1, j)]) 
-            - (u[LOC(i+1, j)]-u[LOC(i-1, j)])) / (2*delta); 
+            - (u[LOC(i, j+1)]-u[LOC(i, j-1)])) / (2*delta); 
         }
     }
 
