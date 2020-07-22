@@ -154,33 +154,33 @@ void Fluid::set_boundary(int boundary, vector<double>& s){
     }
     else if(boundary == 0){
         for(int i = 1; i < N-1; ++i){
-            if(s[LOC(0, i)] != 0.f){
-                swap(s[LOC(0, i)], s[LOC(1, i)]);
-            }
-            else{
+            // if(s[LOC(0, i)] != 0.f){
+            //     swap(s[LOC(0, i)], s[LOC(1, i)]);
+            // }
+            // else{
                 s[LOC(0, i)] = s[LOC(1, i)];
-            }
+            // }
             
-            if(s[LOC(N-1, i)] != 0.f){
-                swap(s[LOC(N-1, i)], s[LOC(N-2, i)]);            
-            }
-            else{
+            // if(s[LOC(N-1, i)] != 0.f){
+            //     swap(s[LOC(N-1, i)], s[LOC(N-2, i)]);            
+            // }
+            // else{
                 s[LOC(N-1, i)] = s[LOC(N-2, i)];
-            }
+            // }
 
-            if(s[LOC(i, 0)] != 0.f){
-                swap(s[LOC(i, 0)], s[LOC(i, 1)]);
-            }
-            else{
+            // if(s[LOC(i, 0)] != 0.f){
+            //     swap(s[LOC(i, 0)], s[LOC(i, 1)]);
+            // }
+            // else{
                 s[LOC(i, 0)] = s[LOC(i, 1)];
-            }
+            // }
 
-            if(s[LOC(i, N-1)] != 0.f){
-                swap(s[LOC(i, N-2)], s[LOC(i, N-1)]);            
-            }
-            else{
+            // if(s[LOC(i, N-1)] != 0.f){
+            //     swap(s[LOC(i, N-2)], s[LOC(i, N-1)]);            
+            // }
+            // else{
                 s[LOC(i, N-1)] = s[LOC(i, N-2)];
-            }
+            // }
         }
         s[LOC(0, 0)] = 0.5 * (s[LOC(1, 0)]+s[LOC(0, 1)]);
         s[LOC(0, N-1)] = 0.5 * (s[LOC(1, N-1)] + s[LOC(0, N-2)]);
